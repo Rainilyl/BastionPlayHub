@@ -1,6 +1,6 @@
 # BastionPlayHub
 
-[中文](README.zh.md) | [English](README.en.md)
+[中文](README.md) | [English](README.en.md)
 
 BastionPlayHub 是一个终端堡垒机，具有以下功能：
 
