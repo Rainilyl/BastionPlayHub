@@ -19,7 +19,7 @@ BastionPlayHub is a terminal bastion host, more than just a traditional bastion 
 
 
 
-项目结构：
+Project Structure：
 BastionPlayHub
 ├── config
 │   └── servers.yml
