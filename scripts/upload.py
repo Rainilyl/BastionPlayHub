@@ -1,11 +1,3 @@
-import paramiko
-
-def upload_file(server_ip, local_file, remote_path):
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(server_ip, username='your_username')
-    
-    sftp = ssh.open_sftp()
-    sftp.put(local_file, remote_path)
-    sftp.close()
-    ssh.close()
+#!/usr/bin/env python3
+# 此文件已废弃，所有功能已整合到 restricted_shell.py
+raise ImportError("此模块已废弃，请使用 restricted_shell.py")

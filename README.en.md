@@ -2,66 +2,73 @@
 
 [中文](README.md) | [English](README.en.md)
 
-BastionPlayHub is a terminal bastion host, more than just a traditional bastion host, currently in its early stages with ongoing updates to its features. Presently, it includes the following functionalities:
-
-- Batch viewing and management of hosts
-- Automatic synchronization and updating of host list information (coming soon)
-- Execution of playbooks on individual or multiple hosts defined by `host` or `hosts` (functionality under verification, coming soon)
-- File upload and download capabilities
+Lightweight terminal bastion host. Users SSH in and enter a restricted shell with predefined commands for server management, Ansible Playbook execution, and file transfer.
 
 ## Features
 
-1. **Remote Control**: Remote operation of individual or multiple hosts using custom commands.
-2. **Playbook Execution**: Execution of automated tasks on specified hosts or host groups.
-3. **File Transfer**: Upload and download files between local and remote hosts.
+- Restricted shell — no arbitrary command execution
+- IP / hostname prefix matching for quick connection
+- Single or batch Ansible Playbook execution
+- ZMODEM file transfer — files never persist on bastion
+- Per-session isolation with auto-cleanup on exit
+- Supports remote repository sync or local Playbook directory
 
+## Architecture
 
+```
+                      ┌───────────────────────────────────────┐
+                      │            Bastion Server              │
+  ┌────────┐   SSH    │                                       │   SSH    ┌────────────┐
+  │ UserA  │────────> │  restricted_shell.py (Restricted)     │────────> │ ServerA    │
+  └────────┘          │    │                                  │          └────────────┘
+  ┌────────┐   SSH    │    ├─ c <IP>        → SSH connect     │   SSH    ┌────────────┐
+  │ UserB  │────────> │    ├─ as hosts <pb> → Ansible batch   │────────> │ ServerB    │
+  └────────┘          │    ├─ upload/download → ZMODEM + SCP  │          └────────────┘
+  ┌────────┐   SSH    │    └─ vi/cat/ls     → Session mgmt    │   SSH    ┌────────────┐
+  │ UserC  │────────> │                                       │────────> │ ServerC    │
+  └────────┘          │  /data/playbooks    (local or synced) │          └────────────┘
+                      │  config/servers.yml (server list)     │
+                      └───────────────────────────────────────┘
+```
 
+## Deployment
 
+```bash
+git clone git@github.com:Rainilyl/BastionPlayHub.git
+cd BastionPlayHub
+sudo bash setup/deploy.sh [username]    # default: bastion_user
+```
 
-Project Structure：
-BastionPlayHub
-├── config
-│   └── servers.yml
-├── requirements.txt
-├── restricted_shell.py
-├── scripts
-│   ├── connect.py
-│   ├── download.py
-│   ├── execute_ansible.py
-│   ├── help.py
-│   └── upload.py
-└── setup
-    └── deploy.sh
+## Post-Deployment
 
+Follow the on-screen prompts after deployment:
 
-## Installation
+**Required**
 
-Follow these steps to install:
+1. Edit server list
+2. Distribute SSH keys to servers
+3. Configure user login authentication
 
-1. Clone this repository:
-    ```bash
-    git clone git@github.com:Rainilyl/BastionPlayHub.git
-    ```
-2. Navigate to the project directory:
-    ```bash
-    cd BastionPlayHub
-    ```
-3. Install dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
+**Optional**
 
-4. Deployment:
-    ```bash
-    sh setup/deploy.sh
-    ```
+- Set up remote repository sync for Playbooks (e.g. GitLab)
+- Change Playbook storage path
 
 ## Usage
 
-### Help
-
-To view available commands, run:
-
 ```bash
-help
+ssh bastion_user@<bastion_ip>
+```
+
+| Command | Description |
+|---------|-------------|
+| `c` | List all servers |
+| `c <IP\|hostname>` | Connect to server (prefix match) |
+| `vi host` / `vi hosts` | Edit target hosts |
+| `as host <playbook>` | Run Playbook on single host |
+| `as hosts <playbook>` | Run Playbook on multiple hosts |
+| `ls playbook` | List available Playbooks |
+| `upload <IP\|hosts>` | Upload file to server |
+| `download <IP\|host>` | Download file from server |
+| `clear` | Clear screen |
+| `exit` | Exit |

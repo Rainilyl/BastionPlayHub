@@ -2,65 +2,73 @@
 
 [中文](README.md) | [English](README.en.md)
 
-BastionPlayHub 是一个终端堡垒机，也不止是堡垒机，项目暂时还只是雏形，堡垒机所有功能会持续更新，该堡垒机暂时具有以下功能：
-
-- 批量查看和管理主机
-- 自动同步更新主机列表信息（等待更新）
-- 通过定义host或hosts，实现单个或批量执行playbook（功能验证中，等待更新）
-- 上传和下载文件
+轻量级终端堡垒机。SSH 登录即进入受限 Shell，通过预定义命令管理服务器、执行 Playbook、传输文件。
 
 ## 特性
 
-1. **远程控制**: 使用自定义指令远程操作单个或多个主机。
-2. **执行 Playbook**: 在指定主机或主机组上运行自动化任务。
-3. **文件传输**: 在本地和远程主机之间上传和下载文件。
+- 受限 Shell，无法执行任意命令
+- IP / 主机名前缀匹配快速连接
+- 单台或批量执行 Ansible Playbook
+- ZMODEM 直传文件，不落盘堡垒机
+- 多用户会话隔离，退出自动清理
+- 支持远程代码仓库同步或本地 Playbook
 
+## 架构
 
+```
+                      ┌───────────────────────────────────────┐
+                      │            堡垒机服务器                 │
+  ┌────────┐   SSH    │                                       │   SSH    ┌────────────┐
+  │ 用户A  │────────> │  restricted_shell.py (受限 Shell)     │────────> │ 服务器A    │
+  └────────┘          │    │                                  │          └────────────┘
+  ┌────────┐   SSH    │    ├─ c <IP>        → SSH 连接服务器  │   SSH    ┌────────────┐
+  │ 用户B  │────────> │    ├─ as hosts <pb> → Ansible 批量执行│────────> │ 服务器B    │
+  └────────┘          │    ├─ upload/download → ZMODEM + SCP  │          └────────────┘
+  ┌────────┐   SSH    │    └─ vi/cat/ls     → 会话管理        │   SSH    ┌────────────┐
+  │ 用户C  │────────> │                                       │────────> │ 服务器C    │
+  └────────┘          │  /data/playbooks    (本地 or 远程同步) │          └────────────┘
+                      │  config/servers.yml (服务器列表)       │
+                      └───────────────────────────────────────┘
+```
 
+## 部署
 
-项目结构：
-BastionPlayHub
-├── config
-│   └── servers.yml
-├── requirements.txt
-├── restricted_shell.py
-├── scripts
-│   ├── connect.py
-│   ├── download.py
-│   ├── execute_ansible.py
-│   ├── help.py
-│   └── upload.py
-└── setup
-    └── deploy.sh
+```bash
+git clone git@github.com:Rainilyl/BastionPlayHub.git
+cd BastionPlayHub
+sudo bash setup/deploy.sh [用户名]    # 默认 bastion_user
+```
 
-## 安装
+## 部署后配置
 
-请按照以下步骤进行安装：
+部署完成后根据终端提示完成以下配置：
 
-1. 克隆本仓库：
-    ```bash
-    git clone git@github.com:Rainilyl/BastionPlayHub.git
-    ```
-2. 进入项目目录：
-    ```bash
-    cd BastionPlayHub
-    ```
-3. 安装依赖：
-    ```bash
-    pip install -r requirements.txt
-    ```
+**必选**
 
-4. 部署
-    ```bash
-    sh setup/deploy.sh
-    ```
+1. 编辑服务器列表
+2. 分发密钥到服务器（免密连接）
+3. 配置用户登录堡垒机认证
 
+**可选**
+
+- 配置远程代码仓库同步 Playbook（如 GitLab）
+- 修改 Playbook 存储路径
 
 ## 使用
 
-### 帮助
-
-查看可执行的指令：
-
 ```bash
-help
+ssh bastion_user@<堡垒机IP>
+```
+
+| 命令 | 说明 |
+|------|------|
+| `c` | 显示所有服务器 |
+| `c <IP\|主机名>` | 连接服务器（前缀匹配） |
+| `vi host` / `vi hosts` | 编辑目标主机 |
+| `as host <playbook>` | 单台执行 Playbook |
+| `as hosts <playbook>` | 批量执行 Playbook |
+| `ls playbook` | 列出可用 Playbook |
+| `upload <IP\|hosts>` | 上传文件 |
+| `download <IP\|host>` | 下载文件 |
+| `clear` | 清屏 |
+| `exit` | 退出 |

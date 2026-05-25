@@ -1,12 +1,3 @@
-import os
-import git
-
-def execute_playbook(path_to_yaml):
-    repo_url = "https://github.com/your_github_repo/cicd"
-    repo_dir = "/tmp/cicd_repo"
-    
-    if not os.path.exists(repo_dir):
-        git.Repo.clone_from(repo_url, repo_dir)
-    
-    playbook_path = os.path.join(repo_dir, path_to_yaml)
-    os.system(f"ansible-playbook {playbook_path}")
+#!/usr/bin/env python3
+# 此文件已废弃，所有功能已整合到 restricted_shell.py
+raise ImportError("此模块已废弃，请使用 restricted_shell.py")
