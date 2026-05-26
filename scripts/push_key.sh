@@ -1,13 +1,4 @@
 #!/bin/bash
-# BastionPlayHub 密钥分发脚本
-# 将堡垒机用户的公钥推送到服务器，实现免密连接
-#
-# 用法:
-#   bash push_key.sh <目标IP> [用户名]            分发到单台服务器 (默认 root)
-#   bash push_key.sh --all [用户名]               分发到 servers.yml 中所有服务器
-#   bash push_key.sh --file <IP列表文件> [用户名] 分发到文件中的所有服务器
-#
-# 首次分发需要输入目标服务器密码
 
 BASTION_USER="${BASTION_USER:-bastion_user}"
 USER_HOME=$(eval echo "~$BASTION_USER")
@@ -20,7 +11,6 @@ if [ ! -f "$PUB_KEY_FILE" ]; then
     exit 1
 fi
 
-# 默认目标用户为 root
 TARGET_USER="root"
 
 push_key_to_host() {
@@ -90,7 +80,6 @@ case "${1:-}" in
         show_help
         ;;
     *)
-        # 当作 IP 处理，第二个参数为用户名
         if [ -n "$2" ]; then
             TARGET_USER="$2"
         fi

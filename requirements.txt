@@ -1,3 +1,1 @@
-# BastionPlayHub 依赖
-# Github: Rainilyl
 pyyaml>=6.0

@@ -1,6 +1,4 @@
 #!/bin/bash
-# BastionPlayHub 部署脚本
-# 用法: sudo bash deploy.sh [用户名]
 
 set -e
 
@@ -19,7 +17,6 @@ echo "  BastionPlayHub 堡垒机部署"
 echo "=========================================="
 echo ""
 
-# ---- [1/6] 安装系统依赖 ----
 echo "[1/6] 安装系统依赖..."
 
 install_pkg() {
@@ -56,7 +53,6 @@ fi
 install_pkg sshpass 2>/dev/null || true
 install_pkg lrzsz 2>/dev/null || true
 
-# ---- [2/6] 安装 Python 依赖 ----
 echo "[2/6] 安装 Python 依赖..."
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -65,7 +61,6 @@ pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple \
     --trusted-host pypi.tuna.tsinghua.edu.cn \
     -r "$PROJECT_DIR/requirements.txt" -q
 
-# ---- [3/6] 部署程序文件 ----
 echo "[3/6] 部署程序文件..."
 mkdir -p "$INSTALL_DIR"
 cp -rf "$PROJECT_DIR"/* "$INSTALL_DIR/"
@@ -77,12 +72,10 @@ if ! grep -q "/usr/local/bin/restricted_shell.py" /etc/shells; then
     echo "/usr/local/bin/restricted_shell.py" >> /etc/shells
 fi
 
-# ---- [4/6] 创建 Playbook 目录 ----
 echo "[4/6] 初始化 Playbook 目录..."
 mkdir -p "$PLAYBOOK_DIR"
 chmod +x "$INSTALL_DIR/scripts/gitlab_sync.sh"
 
-# 创建测试 playbook
 mkdir -p "$PLAYBOOK_DIR/test"
 cat > "$PLAYBOOK_DIR/test/ping.yml" << 'PLAYBOOKEOF'
 ---
@@ -102,7 +95,6 @@ cat > "$PLAYBOOK_DIR/test/ping.yml" << 'PLAYBOOKEOF'
 PLAYBOOKEOF
 echo "  已创建测试 playbook: test/ping.yml"
 
-# ---- [5/6] 创建用户 ----
 echo "[5/6] 配置堡垒机用户: $USERNAME"
 if id "$USERNAME" >/dev/null 2>&1; then
     echo "  用户 $USERNAME 已存在，更新 shell..."
@@ -116,10 +108,9 @@ USER_HOME=$(eval echo "~$USERNAME")
 SSH_DIR="$USER_HOME/.ssh"
 mkdir -p "$SSH_DIR"
 
-# 自动生成堡垒机用户密钥对（用于免密连接后端服务器）
 if [ ! -f "$SSH_DIR/id_rsa" ]; then
     ssh-keygen -t rsa -b 4096 -f "$SSH_DIR/id_rsa" -N "" -q
-    echo "  已生成堡垒机用户密钥对 (用于连接后端服务器)"
+    echo "  已生成堡垒机用户密钥对"
 else
     echo "  密钥对已存在，跳过生成"
 fi
@@ -131,7 +122,6 @@ chmod 644 "$SSH_DIR/id_rsa.pub"
 chmod 600 "$SSH_DIR/authorized_keys"
 chown -R "$USERNAME:$USERNAME" "$SSH_DIR"
 
-# ---- [6/6] 配置日志 ----
 echo "[6/6] 配置日志..."
 touch /var/log/bastion_gitlab_sync.log
 chmod 644 /var/log/bastion_gitlab_sync.log

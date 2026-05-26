@@ -1,9 +1,3 @@
-# GitLab 仓库同步配置
-# 修改为你的 GitLab 仓库地址
 repo_url: "git@your-gitlab-server.com:your-group/your-playbooks.git"
-
-# 同步间隔（分钟），用于 cron 配置
 sync_interval: 5
-
-# 本地存储路径
 local_path: "/data/playbooks"
