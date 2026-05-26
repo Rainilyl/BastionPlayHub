@@ -15,9 +15,7 @@
 
 ## 架构
 
-```
 ![架构图](./docs/architecture.png)
-```
 
 ## 部署
 

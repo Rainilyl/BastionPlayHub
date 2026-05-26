@@ -15,9 +15,7 @@ Lightweight terminal bastion host. Users SSH in and enter a restricted shell wit
 
 ## Architecture
 
-```
 ![architecture_en](./docs/architecture.png)
-```
 
 ## Deployment
 
