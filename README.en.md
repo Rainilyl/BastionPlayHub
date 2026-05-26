@@ -16,19 +16,7 @@ Lightweight terminal bastion host. Users SSH in and enter a restricted shell wit
 ## Architecture
 
 ```
-                      ┌───────────────────────────────────────┐
-                      │            Bastion Server              │
-  ┌────────┐   SSH    │                                       │   SSH    ┌────────────┐
-  │ UserA  │────────> │  restricted_shell.py (Restricted)     │────────> │ ServerA    │
-  └────────┘          │    │                                  │          └────────────┘
-  ┌────────┐   SSH    │    ├─ c <IP>        → SSH connect     │   SSH    ┌────────────┐
-  │ UserB  │────────> │    ├─ as hosts <pb> → Ansible batch   │────────> │ ServerB    │
-  └────────┘          │    ├─ upload/download → ZMODEM + SCP  │          └────────────┘
-  ┌────────┐   SSH    │    └─ vi/cat/ls     → Session mgmt    │   SSH    ┌────────────┐
-  │ UserC  │────────> │                                       │────────> │ ServerC    │
-  └────────┘          │  /data/playbooks    (local or synced) │          └────────────┘
-                      │  config/servers.yml (server list)     │
-                      └───────────────────────────────────────┘
+![architecture_en](./docs/architecture.png)
 ```
 
 ## Deployment
